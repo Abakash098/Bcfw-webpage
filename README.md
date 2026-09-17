@@ -81,6 +81,62 @@ deploy ships half-new code. Bump every `?v=` together when deploying.
 **Reduced motion** is honoured throughout: no reveals, no choreography, no
 loop — one composed static frame and the column instead of the arc.
 
+
+## Festival mode
+
+The site re-skins itself around the festival the country is actually in —
+17 of them, covering all 22 languages and every month except May and June.
+A strip under the nav names it, links to the languages it touches, and the
+particle field takes its palette. Brand tokens are untouched: a festival
+tints the fireworks, it does not repaint the company.
+
+Preview any of them out of season with `?festival=<id>`, e.g.
+`?festival=diwali`. `?festival=none` turns it off.
+
+**The dates are a maintenance contract, not a computation.** Most Indian
+festivals are lunar or luni-solar and move by up to a month between Gregorian
+years; the Islamic ones shift ~11 days earlier annually. `festivals.js` holds
+one table of explicit `from`/`to` windows, currently **verified for 2026 only**.
+Check them against a panchang before each year and edit that table — nothing
+else needs touching.
+
+## Language pages
+
+`/languages/<slug>/` for all 22, plus an index at `/languages/`. These exist
+to rank: someone searching "bhojpuri ad film agency" is a qualified lead, and
+one homepage cannot rank for 22 different things.
+
+Generated — do not hand-edit:
+
+```bash
+node build-languages.mjs
+```
+
+It also writes `sitemap.xml` and `robots.txt`. Regenerate after touching
+`data.js`, `images.js`, `langdata.js` or `festivals.js`.
+
+They carry **no WebGL** on purpose. 22 pages each booting a 26,000-point
+particle system would wreck Core Web Vitals on exactly the pages whose job is
+to be found; the culture photograph carries the brand instead.
+
+Speaker figures are first-language speakers from the **2011 Census of India**,
+the last published one, and each page says so. Where a figure is contested the
+field is left null and simply not printed — an omitted number beats a
+confident wrong one. No page claims BCF work that does not exist; the work
+section asks for the reel instead.
+
+## Particle shapes
+
+Shapes are **named, not indexed** (`sphere`, `helix`, `disperse`, `embers`,
+`mark`), selected per section by `data-shape`. An earlier positional version
+used `beat + 1` arithmetic, so appending the wordmark silently re-pointed the
+contact section at it. Named shapes make that class of bug impossible.
+
+`mark` is the BCF wordmark, sampled off a 2D canvas by rasterising the real
+typeface — change the text or the font and the shape follows. It sets spin to
+zero and unwinds accumulated rotation, because a wordmark read at an angle is
+not a wordmark.
+
 ## Performance
 
 - 26,000 points desktop / 11,000 mobile, DPR capped at 2

@@ -32,7 +32,7 @@
   "knowsLanguage": ["hi","bn","te","mr","ta","ur","gu","kn","ml","or","pa","as"]
 }
 </script>
-<link rel="stylesheet" href="./styles.css?v=2" />
+<link rel="stylesheet" href="./styles.css?v=4" />
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }
 </script>
@@ -64,7 +64,9 @@
 
 <main id="top">
 
-  <section class="hero" data-beat="0" data-dim="false">
+  <aside class="festival" id="festival" aria-label="Festival season"></aside>
+
+  <section class="hero" data-beat="0" data-shape="sphere" data-dim="false">
     <div class="wrap scrim">
       <p class="label">Bharat Content Fireworks</p>
       <h1 data-split>We don’t translate.<br /><span class="fire">We detonate.</span></h1>
@@ -85,25 +87,26 @@
     </div>
   </div>
 
-  <section id="about" class="section" data-beat="1" data-dim="true" data-spin="0.22">
+  <section id="about" class="section" data-beat="1" data-shape="helix" data-dim="true" data-spin="0.22">
     <div class="wrap">
       <p class="label">The manifesto</p>
       <div id="manifesto-list"></div>
     </div>
   </section>
 
-  <section class="pull section" data-beat="1" data-dim="true" data-spin="0.22">
+  <section class="pull section" data-beat="1" data-shape="helix" data-dim="true" data-spin="0.22">
     <div class="wrap scrim" data-reveal>
       <q data-stagger-item>The next 400 million viewers were never waiting for a translation. They were waiting for someone to speak first.</q>
     </div>
   </section>
 
-  <section id="languages" class="section" data-beat="2" data-dim="false" data-spin="0.015">
+  <section id="languages" class="section" data-beat="2" data-shape="disperse" data-dim="false" data-spin="0.015">
     <div class="wrap">
       <p class="label">Twenty-two tongues</p>
       <h2 data-split data-reveal style="font-size:clamp(2rem,5.5vw,3.5rem);margin-top:.5rem">Every script its own firework</h2>
       <div class="arc-stage"><div class="arc" id="arc"></div></div>
       <p class="arc-hint">Scroll to turn the arc — every script passes through the centre</p>
+      <p class="all-langs"><a href="./languages/">See all 22 languages, market by market →</a></p>
       <div class="lang-column" id="lang-column" data-reveal data-stagger="45"
         role="group" aria-label="Languages we work in"></div>
       <div class="swipe-meta" aria-hidden="true">
@@ -120,7 +123,7 @@
 
   <div class="stats" id="stats" data-reveal data-stagger="120"></div>
 
-  <section id="work" class="section" data-beat="3" data-dim="true">
+  <section id="work" class="section" data-beat="3" data-shape="embers" data-dim="true">
     <div class="wrap">
       <p class="label">The work</p>
       <h2 data-split data-reveal style="font-size:clamp(2rem,5.5vw,3.5rem);margin-top:.5rem">Proof, not promises</h2>
@@ -129,7 +132,7 @@
     </div>
   </section>
 
-  <section class="section" data-beat="3" data-dim="true">
+  <section class="section" data-beat="3" data-shape="embers" data-dim="true">
     <div class="wrap">
       <p class="label">Capabilities</p>
       <h2 data-split data-reveal style="font-size:clamp(2rem,5.5vw,3.5rem);margin-top:.5rem">What we make</h2>
@@ -137,7 +140,7 @@
     </div>
   </section>
 
-  <section id="contact" class="section" data-beat="4" data-dim="true" data-spin="0.03">
+  <section id="contact" class="section" data-beat="4" data-shape="embers" data-dim="true" data-spin="0.03">
     <div class="wrap scrim">
       <p class="label">Contact</p>
       <h2 data-split data-reveal style="font-size:clamp(2.5rem,7vw,4.5rem);margin-top:.5rem">Ready to<br />detonate?</h2>
@@ -176,12 +179,19 @@
     </div>
   </section>
 
+  <section class="section signoff" data-beat="5" data-shape="mark" data-dim="false" data-spin="0">
+    <div class="wrap">
+      <p class="label">Bharat Content Fireworks</p>
+      <p class="signoff-note serif">Twenty-two languages. One standard.</p>
+    </div>
+  </section>
+
   <footer class="wrap">
     <span>BCF — Bharat Content Fireworks</span>
     <span>Local preview build. Contact details are placeholders.</span>
   </footer>
 </main>
 
-<script type="module" src="./app.js?v=2"></script>
+<script type="module" src="./app.js?v=4"></script>
 </body>
 </html>

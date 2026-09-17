@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { REDUCED, clamp, damp, ease, pointer } from "./motion.js?v=2";
+import { REDUCED, clamp, damp, ease, pointer } from "./motion.js?v=4";
 
 const MOBILE = window.matchMedia("(max-width: 767px)").matches;
 const COUNT = MOBILE ? 9000 : 26000;
@@ -80,6 +80,42 @@ const FRAG = `
   }
 `;
 
+
+/* Sample the wordmark off a 2D canvas so the particles can spell it.
+ * Rasterising the real typeface beats hand-plotting letterform coordinates:
+ * change the text or the font and the shape follows. */
+function sampleText(text, count, width = 420, height = 150) {
+  const c = document.createElement("canvas");
+  c.width = width;
+  c.height = height;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  ctx.fillStyle = "#fff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `700 ${Math.round(height * 0.82)}px "Bebas Neue", Impact, sans-serif`;
+  ctx.fillText(text, width / 2, height / 2);
+
+  const { data } = ctx.getImageData(0, 0, width, height);
+  const hits = [];
+  for (let y = 0; y < height; y += 2) {
+    for (let x = 0; x < width; x += 2) {
+      if (data[(y * width + x) * 4 + 3] > 128) hits.push([x, y]);
+    }
+  }
+
+  const out = new Float32Array(count * 3);
+  if (!hits.length) return out;
+
+  const SCALE = 1.45;
+  for (let i = 0; i < count; i++) {
+    const [x, y] = hits[(Math.random() * hits.length) | 0];
+    out[i * 3] = (x - width / 2) * SCALE + (Math.random() - 0.5) * 5;
+    out[i * 3 + 1] = -(y - height / 2) * SCALE + (Math.random() - 0.5) * 5;
+    out[i * 3 + 2] = (Math.random() - 0.5) * 40;
+  }
+  return out;
+}
+
 function buildTargets(count) {
   const sphere = new Float32Array(count * 3);
   const helix = new Float32Array(count * 3);
@@ -119,7 +155,7 @@ function buildTargets(count) {
     core[j + 1] = (Math.random() - 0.5) * 22;
     core[j + 2] = (Math.random() - 0.5) * 22;
   }
-  return [core, sphere, helix, disperse, embers];
+  return { core, sphere, helix, disperse, embers };
 }
 
 export function createScene(canvas) {
@@ -136,6 +172,10 @@ export function createScene(canvas) {
   camera.position.set(0, 0, 620);
 
   const SHAPES = buildTargets(COUNT);
+  // Falls back to the ember field if the canvas yields nothing (no font yet,
+  // or a headless context).
+  const mark = sampleText("BCF", COUNT);
+  SHAPES.mark = mark.some((v) => v !== 0) ? mark : SHAPES.embers;
   const scales = new Float32Array(COUNT);
   const seeds = new Float32Array(COUNT);
   const colors = new Float32Array(COUNT * 3);
@@ -152,8 +192,8 @@ export function createScene(canvas) {
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(COUNT * 3), 3));
-  geometry.setAttribute("aFrom", new THREE.BufferAttribute(new Float32Array(SHAPES[0]), 3));
-  geometry.setAttribute("aTo", new THREE.BufferAttribute(new Float32Array(SHAPES[1]), 3));
+  geometry.setAttribute("aFrom", new THREE.BufferAttribute(new Float32Array(SHAPES.core), 3));
+  geometry.setAttribute("aTo", new THREE.BufferAttribute(new Float32Array(SHAPES.sphere), 3));
   geometry.setAttribute("aScale", new THREE.BufferAttribute(scales, 1));
   geometry.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
   geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
@@ -178,7 +218,7 @@ export function createScene(canvas) {
   const points = new THREE.Points(geometry, material);
   scene.add(points);
 
-  const state = { shape: 1, mix: 1, opacity: 1, running: true, energy: 0, spin: 0.05 };
+  const state = { shape: "sphere", mix: 1, opacity: 1, running: true, energy: 0, spin: 0.05 };
 
   function resize() {
     renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -189,8 +229,8 @@ export function createScene(canvas) {
   window.addEventListener("resize", resize);
 
   /** Swap the morph endpoints once, then animate the single mix uniform. */
-  function goTo(index) {
-    const next = clamp(index, 0, SHAPES.length - 1);
+  function goTo(name) {
+    const next = SHAPES[name] ? name : "sphere";
     if (next === state.shape) return;
     geometry.attributes.aFrom.array.set(geometry.attributes.aTo.array);
     geometry.attributes.aFrom.needsUpdate = true;
@@ -220,7 +260,14 @@ export function createScene(canvas) {
       uniforms.uPointerStrength.value = damp(uniforms.uPointerStrength.value, 0, 3, dt);
     }
 
-    points.rotation.y += dt * state.spin;
+    if (state.spin === 0) {
+      // Spin 0 means "settle square to camera" -- a wordmark read at an angle
+      // is not a wordmark. Unwind accumulated rotation by the short way round.
+      const wrapped = ((points.rotation.y + Math.PI) % (Math.PI * 2)) - Math.PI;
+      points.rotation.y = damp(wrapped, 0, 3.2, dt);
+    } else {
+      points.rotation.y += dt * state.spin;
+    }
     renderer.render(scene, camera);
   }
 
@@ -254,15 +301,28 @@ export function createScene(canvas) {
     /** Ignition: held in the core, then burst out to the shell. */
     ignite() {
       if (REDUCED) return;
-      geometry.attributes.aFrom.array.set(SHAPES[0]);
+      geometry.attributes.aFrom.array.set(SHAPES.core);
       geometry.attributes.aFrom.needsUpdate = true;
-      geometry.attributes.aTo.array.set(SHAPES[1]);
+      geometry.attributes.aTo.array.set(SHAPES.sphere);
       geometry.attributes.aTo.needsUpdate = true;
-      state.shape = 1;
+      state.shape = "sphere";
       state.mix = 0;
       state.opacity = 1;
     },
-    setBeat(beat) { goTo(beat + 1); },
+    /** Recolour the field. Festival mode uses this; the ink stays put. */
+    setPalette(hexes) {
+      if (!hexes || !hexes.length) return;
+      const colours = hexes.map((h) => new THREE.Color(h));
+      const attr = geometry.attributes.aColor;
+      for (let i = 0; i < COUNT; i++) {
+        const c = colours[(Math.random() * colours.length) | 0];
+        attr.array[i * 3] = c.r;
+        attr.array[i * 3 + 1] = c.g;
+        attr.array[i * 3 + 2] = c.b;
+      }
+      attr.needsUpdate = true;
+    },
+    setShape(name) { goTo(name); },
     setOpacity(v) { state.opacity = v; },
     setEnergy(v) { state.energy = clamp(v, 0, 1); },
     setSpin(v) { state.spin = v; },

@@ -1,9 +1,10 @@
-import { createScene } from "./scene.js?v=2";
-import { LANGUAGES, MANIFESTO, CASES, CAPABILITIES, STATS } from "./data.js?v=2";
-import { CULTURE_IMAGES } from "./images.js?v=2";
+import { createScene } from "./scene.js?v=4";
+import { LANGUAGES, MANIFESTO, CASES, CAPABILITIES, STATS } from "./data.js?v=4";
+import { CULTURE_IMAGES } from "./images.js?v=4";
+import { activeFestival, nextFestival, requestedFestival } from "./festivals.js?v=4";
 import {
   REDUCED, clamp, damp, ease, initReveals, magnetic, scroll, splitLines,
-} from "./motion.js?v=2";
+} from "./motion.js?v=4";
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => [...document.querySelectorAll(sel)];
@@ -226,6 +227,68 @@ function bindArc() {
   });
 }
 
+/** Publish the strip's real height so the fixed nav can sit under it.
+    A hardcoded offset breaks as soon as the strip wraps to two lines. */
+function publishStripHeight(strip) {
+  const apply = () => {
+    const h = Math.round(strip.getBoundingClientRect().height);
+    document.documentElement.style.setProperty("--fest-h", `${h}px`);
+  };
+  apply();
+  if ("ResizeObserver" in window) new ResizeObserver(apply).observe(strip);
+  else window.addEventListener("resize", apply);
+}
+
+/* ---------- festival mode ----------
+   Recolours the particle field and shows what the country is currently in.
+   The brand tokens are left alone: a festival tints the fireworks, it does
+   not repaint the company. ?festival=<id> previews any of them out of
+   season, ?festival=none turns it off. */
+function bindFestival(scene) {
+  const strip = $("#festival");
+  if (!strip) return;
+
+  const override = requestedFestival();
+  if (override === "none") return;
+
+  const festival = override || activeFestival();
+
+  if (!festival) {
+    const upcoming = nextFestival();
+    if (!upcoming) return;
+    strip.innerHTML = `<span class="fest-label">Next up</span>
+      <span class="fest-name">${upcoming.festival.name}</span>
+      <span class="fest-days">in ${upcoming.days} day${upcoming.days === 1 ? "" : "s"}</span>`;
+    strip.classList.add("is-on", "is-upcoming");
+    publishStripHeight(strip);
+    return;
+  }
+
+  scene.setPalette(festival.palette);
+  document.documentElement.setAttribute("data-festival", festival.id);
+  strip.style.setProperty("--fest", festival.palette[0]);
+  strip.style.setProperty("--fest-2", festival.palette[1] || festival.palette[0]);
+
+  const links = festival.languages
+    .map((name) => {
+      const slug = name.toLowerCase();
+      return `<a href="./languages/${slug}/">${name}</a>`;
+    })
+    .join("");
+
+  strip.innerHTML = `<span class="fest-label">Now</span>
+    <span class="fest-name">${festival.name}</span>
+    <span class="fest-blurb">${festival.blurb}</span>
+    <span class="fest-langs">${links}</span>`;
+  strip.classList.add("is-on");
+  publishStripHeight(strip);
+
+  if (festival.behaviour) {
+    scene.setEnergy(festival.behaviour.energy ?? 0);
+    scene.setSpin(festival.behaviour.spin ?? 0.05);
+  }
+}
+
 /* ---------- phone: swipe gallery ----------
    The desktop arc does not survive a 375px screen, so the phone gets a
    snap-scrolling gallery instead. This only reports position; the scrolling
@@ -306,7 +369,7 @@ function bindBeats(scene) {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
       const el = entry.target;
-      scene.setBeat(Number(el.dataset.beat));
+      scene.setShape(el.dataset.shape || "sphere");
       // Copy-heavy sections drop the field so Garamond stays readable.
       scene.setOpacity(el.dataset.dim === "true" ? 0.35 : 1);
       scene.setSpin(Number(el.dataset.spin ?? 0.05));
@@ -329,6 +392,7 @@ $$(".cta").forEach((el) => magnetic(el));
 
 const scene = createScene($("#scene"));
 bindBeats(scene);
+bindFestival(scene);
 
 /* Hero choreography: ignite the field, then let the masked lines rise.
  *
@@ -340,7 +404,7 @@ let heroReleased = false;
 function releaseHero() {
   if (heroReleased) return;
   heroReleased = true;
-  scene.ignite();
+  if (window.scrollY < window.innerHeight * 0.5) scene.ignite();
   document.body.classList.add("is-ready");
 }
 
