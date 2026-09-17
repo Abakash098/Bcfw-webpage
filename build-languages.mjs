@@ -51,7 +51,7 @@ export function head(title, desc, url, jsonLd, depth = "../../") {
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="${FONTS}" rel="stylesheet" />
-<link rel="stylesheet" href="${depth}styles.css?v=4" />
+<link rel="stylesheet" href="${depth}styles.css?v=5" />
 <script type="application/ld+json">
 ${JSON.stringify(jsonLd, null, 2)}
 </script>

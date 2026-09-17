@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { REDUCED, clamp, damp, ease, pointer } from "./motion.js?v=4";
+import { REDUCED, clamp, damp, ease, pointer } from "./motion.js?v=9";
 
 const MOBILE = window.matchMedia("(max-width: 767px)").matches;
 const COUNT = MOBILE ? 9000 : 26000;
@@ -24,6 +24,7 @@ const VERT = `
   uniform float uMix;
   uniform float uTime;
   uniform float uSize;
+  uniform float uSizeScale;
   uniform float uEnergy;
   uniform vec3  uPointer;
   uniform float uPointerStrength;
@@ -60,7 +61,7 @@ const VERT = `
     vFade = smoothstep(-1400.0, -280.0, mv.z) * smoothstep(60.0, 300.0, depth);
 
     gl_Position = projectionMatrix * mv;
-    gl_PointSize = min(uSize * aScale * (300.0 / max(depth, 120.0)), 22.0);
+    gl_PointSize = min(uSize * uSizeScale * aScale * (300.0 / max(depth, 120.0)), 22.0);
   }
 `;
 
@@ -84,7 +85,7 @@ const FRAG = `
 /* Sample the wordmark off a 2D canvas so the particles can spell it.
  * Rasterising the real typeface beats hand-plotting letterform coordinates:
  * change the text or the font and the shape follows. */
-function sampleText(text, count, width = 420, height = 150) {
+function sampleText(text, count, scale, width = 760, height = 200) {
   const c = document.createElement("canvas");
   c.width = width;
   c.height = height;
@@ -92,26 +93,42 @@ function sampleText(text, count, width = 420, height = 150) {
   ctx.fillStyle = "#fff";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `700 ${Math.round(height * 0.82)}px "Bebas Neue", Impact, sans-serif`;
+  // Tracked out so the B, C and F never bleed into one another once each
+  // glyph is rendered as a cloud rather than a solid shape.
+  if ("letterSpacing" in ctx) ctx.letterSpacing = "14px";
+  ctx.font = `700 ${Math.round(height * 0.78)}px "Bebas Neue", Impact, sans-serif`;
   ctx.fillText(text, width / 2, height / 2);
 
   const { data } = ctx.getImageData(0, 0, width, height);
   const hits = [];
-  for (let y = 0; y < height; y += 2) {
-    for (let x = 0; x < width; x += 2) {
-      if (data[(y * width + x) * 4 + 3] > 128) hits.push([x, y]);
+  // Step 1, not 2: every lit pixel is a candidate, so the edges stay sharp.
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * 4 + 3] > 140) hits.push(y * width + x);
     }
   }
 
   const out = new Float32Array(count * 3);
   if (!hits.length) return out;
 
-  const SCALE = 1.45;
+  // Random sampling WITH REPLACEMENT clumps: some pixels collect five points
+  // while their neighbours get none, and the letterforms turn to mush. Walk a
+  // shuffled list instead so density is even and the shape reads.
+  for (let i = hits.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [hits[i], hits[j]] = [hits[j], hits[i]];
+  }
+
+  const SCALE = scale;
+  const LIFT = 110; // sit above centre so the sign-off copy has clear air
   for (let i = 0; i < count; i++) {
-    const [x, y] = hits[(Math.random() * hits.length) | 0];
-    out[i * 3] = (x - width / 2) * SCALE + (Math.random() - 0.5) * 5;
-    out[i * 3 + 1] = -(y - height / 2) * SCALE + (Math.random() - 0.5) * 5;
-    out[i * 3 + 2] = (Math.random() - 0.5) * 40;
+    const hit = hits[i % hits.length];
+    const x = hit % width;
+    const y = (hit / width) | 0;
+    out[i * 3] = (x - width / 2) * SCALE + (Math.random() - 0.5) * 4.5;
+    out[i * 3 + 1] = -(y - height / 2) * SCALE + LIFT + (Math.random() - 0.5) * 4.5;
+    // Depth spread was the main blur: perspective inflates near points.
+    out[i * 3 + 2] = (Math.random() - 0.5) * 9;
   }
   return out;
 }
@@ -174,8 +191,30 @@ export function createScene(canvas) {
   const SHAPES = buildTargets(COUNT);
   // Falls back to the ember field if the canvas yields nothing (no font yet,
   // or a headless context).
-  const mark = sampleText("BCF", COUNT);
-  SHAPES.mark = mark.some((v) => v !== 0) ? mark : SHAPES.embers;
+  /* A fixed scale overflows narrow viewports and looks lost on wide ones.
+     Derive it from the visible extent at the mark's depth, fitting to
+     whichever of width or height binds first. */
+  function markScale() {
+    // A zero-height container (hidden pane, display:none ancestor) would make
+    // the aspect NaN and poison every position in the buffer, so the mark
+    // would stay broken even after the container came back.
+    const w = window.innerWidth || 1280;
+    const h = window.innerHeight || 800;
+    const visibleH = 2 * camera.position.z * Math.tan((camera.fov * Math.PI) / 360);
+    const visibleW = visibleH * (w / h);
+    const GLYPH_W = 201;  // measured from the rasterised canvas
+    const GLYPH_H = 116;
+    // On a tall portrait screen width binds hard, and a 46% target leaves the
+    // mark as a thin strip in the middle of nothing. Let it run wider there.
+    const widthTarget = w / h < 1 ? 0.78 : 0.46;
+    return Math.min((visibleW * widthTarget) / GLYPH_W, (visibleH * 0.34) / GLYPH_H);
+  }
+
+  function buildMark() {
+    const mark = sampleText("BCF", COUNT, markScale());
+    SHAPES.mark = mark.some((v) => v !== 0) ? mark : SHAPES.embers;
+  }
+  buildMark();
   const scales = new Float32Array(COUNT);
   const seeds = new Float32Array(COUNT);
   const colors = new Float32Array(COUNT * 3);
@@ -204,6 +243,7 @@ export function createScene(canvas) {
     uMix: { value: 0 },
     uTime: { value: 0 },
     uSize: { value: MOBILE ? 13 : 17 },
+    uSizeScale: { value: 1 },
     uEnergy: { value: 0 },
     uOpacity: { value: 0 },
     uPointer: { value: new THREE.Vector3(0, 0, 9999) },
@@ -218,7 +258,7 @@ export function createScene(canvas) {
   const points = new THREE.Points(geometry, material);
   scene.add(points);
 
-  const state = { shape: "sphere", mix: 1, opacity: 1, running: true, energy: 0, spin: 0.05 };
+  const state = { shape: "sphere", mix: 1, opacity: 1, running: true, energy: 0, spin: 0.05, sizeScale: 1 };
 
   function resize() {
     renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -226,7 +266,14 @@ export function createScene(canvas) {
     camera.updateProjectionMatrix();
   }
   resize();
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", () => {
+    resize();
+    buildMark();
+    if (state.shape === "mark") {
+      geometry.attributes.aTo.array.set(SHAPES.mark);
+      geometry.attributes.aTo.needsUpdate = true;
+    }
+  });
 
   /** Swap the morph endpoints once, then animate the single mix uniform. */
   function goTo(name) {
@@ -251,6 +298,7 @@ export function createScene(canvas) {
     uniforms.uMix.value = ease.outQuint(clamp(state.mix, 0, 1));
     uniforms.uOpacity.value = damp(uniforms.uOpacity.value, state.opacity, 4, dt);
     uniforms.uEnergy.value = damp(uniforms.uEnergy.value, state.energy, 2.6, dt);
+    uniforms.uSizeScale.value = damp(uniforms.uSizeScale.value, state.sizeScale, 3.5, dt);
 
     if (pointer.active && !MOBILE) {
       pointerWorld.set(pointer.nx * 520, -pointer.ny * 360, 120);
@@ -324,6 +372,8 @@ export function createScene(canvas) {
     },
     setShape(name) { goTo(name); },
     setOpacity(v) { state.opacity = v; },
+    /** Shrink the points so a shape reads as a shape, not a glow. */
+    setSizeScale(v) { state.sizeScale = v; },
     setEnergy(v) { state.energy = clamp(v, 0, 1); },
     setSpin(v) { state.spin = v; },
     get reduced() { return REDUCED; },

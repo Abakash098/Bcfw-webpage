@@ -1,10 +1,10 @@
-import { createScene } from "./scene.js?v=4";
-import { LANGUAGES, MANIFESTO, CASES, CAPABILITIES, STATS } from "./data.js?v=4";
-import { CULTURE_IMAGES } from "./images.js?v=4";
-import { activeFestival, nextFestival, requestedFestival } from "./festivals.js?v=4";
+import { createScene } from "./scene.js?v=9";
+import { LANGUAGES, MANIFESTO, CASES, CAPABILITIES, STATS } from "./data.js?v=9";
+import { CULTURE_IMAGES } from "./images.js?v=9";
+import { activeFestival, nextFestival, requestedFestival } from "./festivals.js?v=9";
 import {
   REDUCED, clamp, damp, ease, initReveals, magnetic, scroll, splitLines,
-} from "./motion.js?v=4";
+} from "./motion.js?v=9";
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => [...document.querySelectorAll(sel)];
@@ -373,6 +373,7 @@ function bindBeats(scene) {
       // Copy-heavy sections drop the field so Garamond stays readable.
       scene.setOpacity(el.dataset.dim === "true" ? 0.35 : 1);
       scene.setSpin(Number(el.dataset.spin ?? 0.05));
+      scene.setSizeScale(Number(el.dataset.size ?? 1));
     });
   }, { threshold: 0.35 });
   $$("[data-beat]").forEach((b) => io.observe(b));

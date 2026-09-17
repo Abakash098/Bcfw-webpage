@@ -702,7 +702,24 @@ body:has(.festival.is-on) .progress { top: var(--fest-h, 0px); }
 [data-script="guru"] { font-family: "Noto Sans Gurmukhi", "Nirmala UI", sans-serif; }
 
 /* Closing beat: the field collapses into the wordmark behind this. */
-.signoff { text-align: center; min-height: 78svh; display: grid; place-items: end center; padding-bottom: clamp(3rem, 8vw, 6rem); }
+/* The canvas is fixed and centres on the viewport, so the copy has to clear
+   the middle of the screen entirely -- the wordmark is lifted in world space
+   and the copy is pinned to the lower third, with a scrim of its own. */
+.signoff {
+  text-align: center;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding-bottom: clamp(4rem, 10vh, 8rem);
+}
+.signoff .wrap { grid-row: 2; position: relative; }
+.signoff .wrap::before {
+  content: "";
+  position: absolute;
+  inset: -2.5rem -2rem;
+  background: radial-gradient(ellipse at center, rgba(10, 8, 4, 0.95) 0%, rgba(10, 8, 4, 0.8) 55%, transparent 100%);
+  z-index: -1;
+}
 .signoff .label, .signoff-note { text-shadow: 0 2px 18px rgba(10, 8, 4, 0.95); }
 .signoff-note { color: var(--cream-dim); font-style: italic; font-size: clamp(1.05rem, 2.6vw, 1.5rem); margin-top: 0.75rem; }
 
