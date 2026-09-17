@@ -1,9 +1,9 @@
-import { createScene } from "./scene.js";
-import { LANGUAGES, MANIFESTO, CASES, CAPABILITIES, STATS } from "./data.js";
-import { CULTURE_IMAGES } from "./images.js";
+import { createScene } from "./scene.js?v=2";
+import { LANGUAGES, MANIFESTO, CASES, CAPABILITIES, STATS } from "./data.js?v=2";
+import { CULTURE_IMAGES } from "./images.js?v=2";
 import {
   REDUCED, clamp, damp, ease, initReveals, magnetic, scroll, splitLines,
-} from "./motion.js";
+} from "./motion.js?v=2";
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => [...document.querySelectorAll(sel)];
@@ -226,6 +226,38 @@ function bindArc() {
   });
 }
 
+/* ---------- phone: swipe gallery ----------
+   The desktop arc does not survive a 375px screen, so the phone gets a
+   snap-scrolling gallery instead. This only reports position; the scrolling
+   itself is native, so momentum and accessibility are the browser's. */
+function bindSwipe() {
+  const rail = $("#lang-column");
+  const count = $("#swipe-count");
+  const fill = $("#swipe-rail-fill");
+  if (!rail || !count) return;
+
+  const total = LANGUAGES.length;
+  let ticking = false;
+
+  const update = () => {
+    ticking = false;
+    const max = rail.scrollWidth - rail.clientWidth;
+    if (max <= 0) return;
+    const ratio = clamp(rail.scrollLeft / max, 0, 1);
+    const index = Math.min(total, Math.round(ratio * (total - 1)) + 1);
+    count.innerHTML = `<b>${String(index).padStart(2, "0")}</b> / ${total}`;
+    fill.style.transform = `scaleX(${clamp(ratio * 4 + 1, 1, 5)})`;
+  };
+
+  rail.addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }, { passive: true });
+
+  update();
+}
+
 /* ---------- work tiles ---------- */
 function bindTiles() {
   if (REDUCED || !window.matchMedia("(hover: hover)").matches) return;
@@ -290,6 +322,7 @@ bindNav();
 bindCounters();
 bindArc();
 bindTiles();
+bindSwipe();
 bindForm();
 initReveals();
 $$(".cta").forEach((el) => magnetic(el));

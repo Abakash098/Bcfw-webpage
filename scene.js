@@ -1,8 +1,8 @@
 import * as THREE from "three";
-import { REDUCED, clamp, damp, ease, pointer } from "./motion.js";
+import { REDUCED, clamp, damp, ease, pointer } from "./motion.js?v=2";
 
 const MOBILE = window.matchMedia("(max-width: 767px)").matches;
-const COUNT = MOBILE ? 11000 : 26000;
+const COUNT = MOBILE ? 9000 : 26000;
 
 const PALETTE = [
   new THREE.Color("#e8650a"), // saffron
@@ -126,7 +126,9 @@ export function createScene(canvas) {
   const renderer = new THREE.WebGLRenderer({
     canvas, antialias: false, alpha: true, powerPreference: "high-performance",
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // A full-screen particle canvas at DPR 3 drains a phone battery for no
+  // visible gain, so phones render a little softer.
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, MOBILE ? 1.75 : 2));
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();

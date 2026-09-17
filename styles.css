@@ -468,3 +468,102 @@ footer { border-top: 1px solid var(--s3); padding: 2.5rem 0; color: var(--muted)
    as two clean rows. */
 @media (min-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 1100px) { .caps { grid-template-columns: repeat(4, 1fr); } }
+/* ===================================================================
+   PHONE
+   =================================================================== */
+
+/* Stop iOS enlarging text on rotate, and kill the default blue tap flash
+   which fires on every touch and is badly off-brand here. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+* { -webkit-tap-highlight-color: rgba(232, 101, 10, 0.18); }
+
+/* Notch and home-indicator safe areas. Without these the wordmark sits under
+   the notch in landscape and the footer under the home bar. */
+.nav { padding-left: max(1.25rem, env(safe-area-inset-left)); padding-right: max(1.25rem, env(safe-area-inset-right)); }
+.drawer { padding-left: max(1.5rem, env(safe-area-inset-left)); padding-right: max(1.5rem, env(safe-area-inset-right)); padding-bottom: env(safe-area-inset-bottom); overscroll-behavior: contain; }
+footer { padding-bottom: max(2.5rem, env(safe-area-inset-bottom)); }
+
+/* iOS Safari zooms the whole page when a focused input is under 16px. That
+   breaks the layout and the user has to pinch back out. 16px exactly. */
+.field input, .field select { font-size: 16px; }
+
+@media (max-width: 767px) {
+  /* Touch targets. 44px is the floor on both iOS and Android. */
+  .burger { padding: 0.85rem 1.15rem; min-height: 44px; }
+  .nav-mark { min-height: 44px; display: flex; align-items: center; }
+  .credits summary { min-height: 44px; display: flex; align-items: center; }
+  .credits li { padding: 0.35rem 0; }
+  .credits a { display: inline-block; padding: 0.3rem 0; }
+  .drawer a { padding: 0.35rem 0; }
+  .field input, .field select { padding: 0.95rem 0.9rem; }
+  .cta { padding: 1.1rem 2.2rem; }
+
+  /* The hero used the full 100svh plus generous padding, which pushed the CTA
+     to the fold edge on shorter handsets. */
+  .hero { min-height: 100svh; padding: 5.5rem 0 3rem; }
+  .hero h1 { font-size: clamp(2.9rem, 13vw, 3.6rem); }
+  .hero .sub { margin: 1.25rem auto 1.75rem; font-size: 1.02rem; }
+  .scroll-cue { margin-top: 2rem; }
+  .scroll-cue i { height: 32px; }
+
+  .section { padding: clamp(3.5rem, 11vw, 5rem) 0; }
+  .wrap { width: min(1180px, 100% - 2.5rem); }
+  .marquee span { font-size: 1.15rem; }
+  .credits ul { grid-template-columns: 1fr; }
+}
+
+/* ---------- swipeable language gallery ----------
+   The desktop arc is the signature moment of this section. A static 11-row
+   grid on a phone throws that away, so the phone gets its own gesture: a
+   snap-scrolling gallery with the photograph full bleed. Native overflow
+   scrolling, so momentum, accessibility and the scrollbar all behave. */
+@media (max-width: 767px) {
+  .lang-column {
+    display: flex;
+    grid-template-columns: none;
+    gap: 0.75rem;
+    background: none;
+    border: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding: 0 max(1.25rem, env(safe-area-inset-left)) 0.5rem;
+    margin-inline: calc(-1 * max(1.25rem, env(safe-area-inset-left)));
+    scroll-padding-inline: max(1.25rem, env(safe-area-inset-left));
+  }
+  .lang-column::-webkit-scrollbar { display: none; }
+
+  .lang-cell {
+    flex: 0 0 68vw;
+    max-width: 300px;
+    aspect-ratio: 3 / 4;
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(232, 101, 10, 0.4);
+    padding: 1rem;
+  }
+  .lang-cell .shot { opacity: 0.42; }
+  .lang-cell .native { font-size: 2.1rem; line-height: 1.3; }
+  .lang-cell[data-script="mlym"] .native,
+  .lang-cell[data-script="orya"] .native { font-size: 1.7rem; }
+  .lang-cell .roman { font-size: 0.66rem; letter-spacing: 0.24em; }
+
+  .swipe-meta { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
+  .swipe-count { font-family: "Bebas Neue", sans-serif; font-size: 1.15rem; color: var(--marigold); letter-spacing: 0.06em; }
+  .swipe-count b { color: var(--cream); font-weight: 400; }
+  .swipe-hint { font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .swipe-rail { height: 2px; background: var(--s3); margin-top: 0.75rem; position: relative; overflow: hidden; }
+  .swipe-rail i { position: absolute; inset: 0 auto 0 0; width: 20%; background: var(--saffron); transform-origin: 0 50%; }
+}
+
+@media (min-width: 768px) { .swipe-meta { display: none; } }

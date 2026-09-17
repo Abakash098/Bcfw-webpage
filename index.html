@@ -32,7 +32,7 @@
   "knowsLanguage": ["hi","bn","te","mr","ta","ur","gu","kn","ml","or","pa","as"]
 }
 </script>
-<link rel="stylesheet" href="./styles.css" />
+<link rel="stylesheet" href="./styles.css?v=2" />
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }
 </script>
@@ -104,7 +104,13 @@
       <h2 data-split data-reveal style="font-size:clamp(2rem,5.5vw,3.5rem);margin-top:.5rem">Every script its own firework</h2>
       <div class="arc-stage"><div class="arc" id="arc"></div></div>
       <p class="arc-hint">Scroll to turn the arc — every script passes through the centre</p>
-      <div class="lang-column" id="lang-column" data-reveal data-stagger="45"></div>
+      <div class="lang-column" id="lang-column" data-reveal data-stagger="45"
+        role="group" aria-label="Languages we work in"></div>
+      <div class="swipe-meta" aria-hidden="true">
+        <span class="swipe-count" id="swipe-count"><b>01</b> / 22</span>
+        <span class="swipe-hint">Swipe</span>
+      </div>
+      <div class="swipe-rail" aria-hidden="true"><i id="swipe-rail-fill"></i></div>
       <details class="credits">
         <summary>Image credits — 22 photographs, Wikimedia Commons</summary>
         <ul id="credits-list"></ul>
@@ -176,6 +182,6 @@
   </footer>
 </main>
 
-<script type="module" src="./app.js"></script>
+<script type="module" src="./app.js?v=2"></script>
 </body>
 </html>

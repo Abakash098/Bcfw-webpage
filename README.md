@@ -43,6 +43,41 @@ collapses edge-on and only one card is readable. Scroll turns it one full
 revolution; drag and arrow keys also turn it, and it eases to the nearest card
 on release. Under 768px the arc is dropped entirely for a plain column.
 
+## Phone
+
+The phone build is not the desktop build with things switched off.
+
+The arc is the signature moment of the languages section, and it does not
+survive a 375px screen — the desktop fallback was a static 11-row grid, which
+threw the whole gesture away. Under 768px the section becomes a **snap-scrolling
+gallery**: one card at a time, photograph full bleed, script large, with the
+neighbouring cards peeking so it reads as swipeable. A counter and rail show
+position, so "22 languages" still lands. Scrolling is native `overflow-x`, so
+momentum, accessibility and the scrollbar are the browser's, not ours.
+
+Mobile-specific things that were wrong and are now fixed:
+
+- **Form inputs were 15.2px.** iOS Safari zooms the page whenever a focused
+  input is under 16px, and the user has to pinch back out. Now exactly 16px.
+- **No safe-area insets.** The wordmark sat under the notch in landscape and
+  the footer under the home indicator. Nav, drawer and footer now use
+  `env(safe-area-inset-*)`.
+- **Default blue tap flash** on every touch, badly off-brand. Now saffron.
+- **The drawer scroll chained to the page** behind it. `overscroll-behavior:
+  contain`.
+- **Touch targets under 44px**, the hamburger worst at 32px. Now 44px.
+  The attribution links stay at 27px, which clears the WCAG 2.5.8 minimum of
+  24px — bringing a 22-item reference list to 44px each would bloat it.
+- Phones render at **9,000 points and DPR 1.75**. A full-screen particle
+  canvas at DPR 3 drains a battery for no visible gain.
+
+## Cache busting
+
+Asset URLs carry `?v=N`, **including the ES module imports inside app.js and
+scene.js**. Versioning only the entry point is not enough: the browser will
+happily pair a fresh `app.js` with a cached `scene.js`, which is exactly how a
+deploy ships half-new code. Bump every `?v=` together when deploying.
+
 **Reduced motion** is honoured throughout: no reveals, no choreography, no
 loop — one composed static frame and the column instead of the arc.
 
