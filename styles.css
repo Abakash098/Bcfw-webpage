@@ -1,0 +1,470 @@
+/* BCF — Bharat Content Fireworks. Brand system is fixed; see bcfworks-stitch-prompt.txt */
+:root {
+  --ink: #0a0804;
+  --s1: #120f08;
+  --s2: #1b160e;
+  --s3: #261f14;
+  --cream: #f5edd8;
+  --cream-dim: #e8dcc0;
+  --muted: #8c7e68;
+  --saffron: #e8650a;
+  --marigold: #f5a623;
+  --crimson: #8b1a1a;
+  --bevel: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--cream);
+  font-family: "Hanken Grotesk", system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+main { position: relative; z-index: 1; }
+
+.wrap { width: min(1180px, 100% - 10vw); margin-inline: auto; }
+
+h1, h2, h3, .display {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.label {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.7rem;
+  color: var(--saffron);
+}
+
+.serif { font-family: "EB Garamond", Georgia, serif; }
+
+/* FIX 2 — nav scrim. Headings were scrolling straight through the wordmark. */
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem clamp(1.25rem, 5vw, 3rem);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background 220ms ease, border-color 220ms ease;
+}
+.nav.is-stuck {
+  background: rgba(10, 8, 4, 0.85);
+  border-bottom-color: rgba(232, 101, 10, 0.55);
+}
+.nav-mark { display: flex; align-items: baseline; gap: 0.6rem; text-decoration: none; }
+.nav-mark b { font-family: "Bebas Neue", sans-serif; font-size: 1.6rem; color: var(--cream); letter-spacing: 0.02em; }
+.nav-mark b i { color: var(--saffron); font-style: normal; }
+.nav-mark span { font-size: 0.6rem; letter-spacing: 0.24em; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+.nav-links { display: flex; gap: 2rem; }
+.nav-links a {
+  color: var(--cream-dim);
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: color 160ms ease;
+}
+.nav-links a:hover, .nav-links a:focus-visible { color: var(--marigold); }
+
+:focus-visible { outline: 2px solid var(--marigold); outline-offset: 3px; }
+
+/* FIX 5 — mobile nav. WORK and LANGUAGES were unreachable under 768px. */
+.burger {
+  display: none;
+  background: var(--saffron);
+  color: var(--ink);
+  border: 0;
+  cursor: pointer;
+  padding: 0.6rem 1rem;
+  clip-path: var(--bevel);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--ink);
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem clamp(1.5rem, 8vw, 3rem);
+}
+.drawer[open], .drawer.is-open { display: flex; }
+.drawer a {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(2.5rem, 12vw, 4rem);
+  color: var(--cream);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.drawer a:hover { color: var(--saffron); }
+.drawer-close {
+  position: absolute;
+  top: 1.25rem;
+  right: clamp(1.25rem, 5vw, 3rem);
+  background: none;
+  border: 1px solid var(--muted);
+  color: var(--cream);
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+}
+
+/* ---------- hero ---------- */
+.hero { min-height: 100svh; display: grid; place-items: center; text-align: center; padding: 6rem 0 4rem; }
+.hero h1 { font-size: clamp(3.5rem, 11vw, 6rem); }
+.hero h1 .fire { color: var(--saffron); display: block; }
+.hero .sub {
+  font-size: clamp(1rem, 2.1vw, 1.3rem);
+  color: var(--cream-dim);
+  max-width: 34ch;
+  margin: 1.75rem auto 2.25rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+.cta {
+  display: inline-block;
+  background: var(--saffron);
+  color: var(--ink);
+  text-decoration: none;
+  padding: 1rem 2.4rem;
+  clip-path: var(--bevel);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  border: 0;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.cta:hover { background: var(--marigold); }
+.scroll-cue { margin-top: 3rem; color: var(--muted); font-size: 0.65rem; letter-spacing: 0.3em; }
+.scroll-cue i { display: block; width: 1px; height: 46px; background: var(--saffron); margin: 0.75rem auto 0; }
+
+/* ---------- marquee ---------- */
+.marquee { overflow: hidden; border-block: 1px solid var(--s3); padding: 1.1rem 0; background: rgba(10, 8, 4, 0.7); }
+.marquee-track { display: flex; gap: 2.5rem; white-space: nowrap; animation: slide 38s linear infinite; }
+.marquee span { font-family: "Bebas Neue", sans-serif; font-size: 1.5rem; color: var(--cream-dim); letter-spacing: 0.04em; }
+.marquee span.dot { color: var(--saffron); }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+/* FIX 3 — scrim behind text. Garamond over a full-density particle field was
+   unreadable; this composites the copy over the canvas instead of deleting it. */
+.section { padding: clamp(5rem, 12vw, 9rem) 0; position: relative; }
+.scrim { position: relative; }
+.scrim::before {
+  content: "";
+  position: absolute;
+  inset: -3rem -2.5rem;
+  background: radial-gradient(ellipse at center, rgba(10, 8, 4, 0.92) 0%, rgba(10, 8, 4, 0.7) 55%, transparent 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.manifesto-row { display: grid; grid-template-columns: auto 1fr; gap: clamp(1.5rem, 5vw, 4rem); margin-top: 3.5rem; }
+.manifesto-row .num { font-family: "Bebas Neue", sans-serif; font-size: 2.5rem; color: var(--saffron); line-height: 1; }
+.manifesto-row h3 { font-size: clamp(1.75rem, 4vw, 2.75rem); margin-bottom: 0.9rem; }
+.manifesto-row p { font-family: "EB Garamond", serif; font-size: 1.15rem; line-height: 1.65; color: var(--cream-dim); max-width: 62ch; }
+
+.pull { text-align: center; padding: clamp(4rem, 10vw, 7rem) 0; }
+.pull q { font-family: "EB Garamond", serif; font-style: italic; font-size: clamp(1.4rem, 3.4vw, 2.2rem); line-height: 1.45; color: var(--cream); max-width: 24ch; display: inline-block; }
+
+/* ---------- stats ---------- */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--s3); background: rgba(18, 15, 8, 0.82); }
+.stat { padding: clamp(2rem, 5vw, 3.25rem) 1rem; text-align: center; border-left: 1px solid var(--s3); }
+.stat:first-child { border-left: 0; }
+.stat b { display: block; font-family: "Bebas Neue", sans-serif; font-size: clamp(2.5rem, 6vw, 4rem); color: var(--marigold); line-height: 1; }
+.stat span { font-size: 0.68rem; letter-spacing: 0.24em; color: var(--muted); font-weight: 700; text-transform: uppercase; }
+
+/* ---------- work ---------- */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1px; background: var(--s3); margin-top: 3rem; border: 1px solid var(--s3); }
+.tile { background: var(--s1); padding: clamp(1.5rem, 3vw, 2.25rem); min-height: 230px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 200ms ease, background 200ms ease; }
+.tile:hover { transform: translateY(-4px); background: var(--s2); }
+.tile .fmt { color: var(--marigold); font-size: 0.68rem; letter-spacing: 0.22em; font-weight: 700; }
+.tile h3 { font-size: 1.5rem; margin: 0.6rem 0 0.4rem; color: var(--cream); }
+.tile p { color: var(--muted); font-size: 0.9rem; }
+.note { margin-top: 1.5rem; color: var(--muted); font-size: 0.82rem; font-style: italic; font-family: "EB Garamond", serif; }
+
+/* ---------- capabilities + contact ---------- */
+.caps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2.5rem; margin-top: 3rem; }
+.caps h3 { font-size: 1.6rem; margin: 0.5rem 0 1rem; }
+.caps ul { list-style: none; }
+.caps li { color: var(--cream-dim); font-family: "EB Garamond", serif; font-size: 1.02rem; padding: 0.35rem 0; border-bottom: 1px solid var(--s2); }
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 3rem; margin-top: 2.5rem; }
+.ph { color: var(--muted); font-size: 0.95rem; letter-spacing: 0.06em; }
+.field { display: block; margin-bottom: 1.1rem; }
+.field span { display: block; font-size: 0.66rem; letter-spacing: 0.22em; font-weight: 700; color: var(--muted); margin-bottom: 0.45rem; text-transform: uppercase; }
+.field input, .field select { width: 100%; background: var(--s1); border: 1px solid var(--s3); color: var(--cream); padding: 0.8rem 0.9rem; font-family: inherit; font-size: 0.95rem; border-radius: 0; }
+.field input:focus, .field select:focus { border-color: var(--saffron); outline: none; }
+footer { border-top: 1px solid var(--s3); padding: 2.5rem 0; color: var(--muted); font-size: 0.8rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; }
+
+/* FIX 1 — the language arc.
+   The previous build stacked all 22 cards edge-on, so only the last one was
+   readable. Cards now sit on a cylinder but counter-rotate to face the viewer,
+   with tilt capped at 25deg, and the whole arc turns on scroll so every script
+   passes through the readable centre. */
+.arc-stage {
+  position: relative;
+  height: 460px;
+  margin-top: 3.5rem;
+  perspective: 1400px;
+  perspective-origin: 50% 45%;
+}
+.arc {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.lang-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 208px;
+  margin: -104px 0 0 -75px;
+  background: linear-gradient(160deg, var(--s2), var(--s1));
+  border: 1px solid rgba(232, 101, 10, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  will-change: transform, opacity;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  backface-visibility: hidden;
+}
+.lang-card .idx { position: absolute; top: 0.6rem; right: 0.7rem; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; }
+.lang-card .native { font-size: 1.85rem; color: var(--cream); line-height: 1.25; text-align: center; padding: 0 0.5rem; }
+.lang-card .roman { font-size: 0.6rem; letter-spacing: 0.22em; color: var(--saffron); font-weight: 700; text-transform: uppercase; }
+.lang-card.is-centre { border-color: var(--marigold); box-shadow: 0 0 34px rgba(245, 166, 35, 0.22); }
+
+/* Native-script fallbacks, so no card renders as tofu boxes. */
+.lang-card[data-script="deva"] .native { font-family: "Noto Sans Devanagari", "Nirmala UI", sans-serif; }
+.lang-card[data-script="beng"] .native { font-family: "Noto Sans Bengali", "Nirmala UI", sans-serif; }
+.lang-card[data-script="telu"] .native { font-family: "Noto Sans Telugu", "Nirmala UI", sans-serif; }
+.lang-card[data-script="taml"] .native { font-family: "Noto Sans Tamil", "Nirmala UI", sans-serif; }
+.lang-card[data-script="arab"] .native { font-family: "Noto Naskh Arabic", "Segoe UI", serif; direction: rtl; }
+.lang-card[data-script="gujr"] .native { font-family: "Noto Sans Gujarati", "Nirmala UI", sans-serif; }
+.lang-card[data-script="knda"] .native { font-family: "Noto Sans Kannada", "Nirmala UI", sans-serif; }
+.lang-card[data-script="mlym"] .native { font-family: "Noto Sans Malayalam", "Nirmala UI", sans-serif; font-size: 1.45rem; }
+.lang-card[data-script="orya"] .native { font-family: "Noto Sans Oriya", "Nirmala UI", sans-serif; }
+.lang-card[data-script="guru"] .native { font-family: "Noto Sans Gurmukhi", "Nirmala UI", sans-serif; }
+
+.arc-hint { text-align: center; margin-top: 1.25rem; color: var(--muted); font-size: 0.66rem; letter-spacing: 0.24em; text-transform: uppercase; }
+
+/* Under 768px the fan is abandoned entirely for a plain column. A 22-card
+   carousel on a phone is unreadable no matter how it is tuned. */
+.lang-column { display: none; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 1px; background: var(--s3); border: 1px solid var(--s3); margin-top: 2.5rem; }
+.lang-column .lang-cell { background: var(--s1); padding: 1.1rem 0.75rem; text-align: center; }
+.lang-column .native { font-size: 1.4rem; color: var(--cream); display: block; }
+.lang-column .roman { font-size: 0.56rem; letter-spacing: 0.2em; color: var(--saffron); font-weight: 700; text-transform: uppercase; }
+
+@media (max-width: 767px) {
+  .arc-stage, .arc-hint { display: none; }
+  .lang-column { display: grid; }
+  .nav-links { display: none; }
+  .burger { display: block; }
+  .stats { grid-template-columns: 1fr; }
+  .stat { border-left: 0; border-top: 1px solid var(--s3); }
+  .stat:first-child { border-top: 0; }
+  .manifesto-row { grid-template-columns: 1fr; gap: 0.75rem; }
+}
+
+/* Reduced motion: one composed static frame, zero choreography. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .marquee-track { animation: none; }
+  .lang-card { transition: none; }
+  .arc-stage { display: none; }
+  .lang-column { display: grid; }
+}
+
+/* ---------- culture imagery ----------
+   The photograph is texture, not the subject. It sits under a heavy ink
+   gradient so the script always clears contrast — the centre card brightens
+   because that is the only one being read closely. */
+.lang-card { overflow: hidden; }
+.lang-card .shot,
+.lang-cell .shot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.22;
+  filter: saturate(0.7) contrast(1.05);
+  transition: opacity 320ms ease, filter 320ms ease;
+  z-index: 0;
+}
+.lang-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 8, 4, 0.72) 0%, rgba(10, 8, 4, 0.55) 45%, rgba(10, 8, 4, 0.92) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+.lang-card.is-centre .shot { opacity: 0.5; filter: saturate(0.95) contrast(1.1); }
+.lang-card .idx,
+.lang-card .native,
+.lang-card .roman { position: relative; z-index: 2; }
+.lang-card .native { text-shadow: 0 2px 14px rgba(10, 8, 4, 0.95), 0 0 3px rgba(10, 8, 4, 0.9); }
+
+.lang-cell { position: relative; overflow: hidden; }
+.lang-cell .shot { opacity: 0.26; }
+.lang-cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 8, 4, 0.7), rgba(10, 8, 4, 0.9));
+  z-index: 1;
+}
+.lang-cell .native, .lang-cell .roman { position: relative; z-index: 2; }
+.lang-cell .native { text-shadow: 0 2px 12px rgba(10, 8, 4, 0.95); }
+
+/* Attribution. Wikimedia reuse requires credit, so it ships with the page. */
+.credits { margin-top: 2.5rem; border-top: 1px solid var(--s2); padding-top: 1.25rem; }
+.credits summary { cursor: pointer; color: var(--muted); font-size: 0.66rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; }
+.credits summary:hover { color: var(--cream-dim); }
+.credits ul { list-style: none; margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 0.4rem 2rem; }
+.credits li { font-size: 0.74rem; color: var(--muted); line-height: 1.5; }
+.credits a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.credits a:hover { color: var(--marigold); }
+.credits b { color: var(--cream-dim); font-weight: 700; }
+
+/* ---------- motion system ---------- */
+/* Masked line reveal: the line clips, the inner span rises out of it. */
+.line { display: block; overflow: hidden; }
+.line-inner {
+  display: block;
+  transform: translateY(105%);
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.is-revealed .line-inner { transform: translateY(0); }
+
+[data-reveal] [data-stagger-item] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-reveal].is-revealed [data-stagger-item] { opacity: 1; transform: none; }
+
+/* The hero is above the fold, so it releases on load rather than waiting for
+   an intersection that has already happened. */
+.is-ready .hero .line-inner { transform: translateY(0); }
+
+/* The hero holds until the field ignites, then releases. */
+.hero .line-inner { transition-delay: 240ms; }
+.hero .sub, .hero .cta, .hero .scroll-cue, .hero .label {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) 620ms,
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) 620ms;
+}
+.is-ready .hero .sub, .is-ready .hero .cta,
+.is-ready .hero .scroll-cue, .is-ready .hero .label { opacity: 1; transform: none; }
+.hero .cta { transition-delay: 760ms; }
+.hero .scroll-cue { transition-delay: 900ms; }
+
+.cta { transition: background 200ms ease, transform 420ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Scroll progress. Purely informational, sits above the nav hairline. */
+.progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: var(--saffron);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  z-index: 70;
+  pointer-events: none;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--saffron);
+  color: var(--ink);
+  padding: 0.85rem 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+.skip:focus { left: 0; }
+
+.arc-stage { cursor: grab; touch-action: pan-y; }
+.arc-stage.is-dragging { cursor: grabbing; }
+.arc-stage:focus-visible { outline: 2px solid var(--marigold); outline-offset: 8px; }
+.lang-card { transition: border-color 260ms ease, box-shadow 260ms ease; }
+
+/* Work tiles track the cursor with a soft saffron wash. */
+.tile { position: relative; overflow: hidden; }
+.tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%),
+              rgba(232, 101, 10, 0.16), transparent 62%);
+  opacity: 0;
+  transition: opacity 320ms ease;
+  pointer-events: none;
+}
+.tile:hover::before, .tile:focus-visible::before { opacity: 1; }
+.tile > * { position: relative; z-index: 1; }
+.tile .metric { color: var(--muted); font-size: 0.86rem; }
+
+.form-status { margin-top: 1rem; font-size: 0.86rem; line-height: 1.5; min-height: 1.2em; }
+.form-status.is-bad { color: var(--bad); }
+.form-status.is-warn { color: var(--warn); }
+.field input[aria-invalid="true"], .field select[aria-invalid="true"] { border-color: var(--bad); }
+.honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .line-inner, [data-reveal] [data-stagger-item],
+  .hero .sub, .hero .cta, .hero .scroll-cue, .hero .label {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .progress { display: none; }
+  .arc-stage { cursor: auto; }
+}
+
+
+/* Six tiles on a wide screen wrap 4+2 and leave a hole. Three columns reads
+   as two clean rows. */
+@media (min-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1100px) { .caps { grid-template-columns: repeat(4, 1fr); } }
