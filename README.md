@@ -135,7 +135,25 @@ contact section at it. Named shapes make that class of bug impossible.
 `mark` is the BCF wordmark, sampled off a 2D canvas by rasterising the real
 typeface — change the text or the font and the shape follows. It sets spin to
 zero and unwinds accumulated rotation, because a wordmark read at an angle is
-not a wordmark.
+not a wordmark. 
+
+Four things keep the letterforms readable, and all four matter:
+
+- **Even distribution, not random sampling.** Sampling lit pixels *with
+  replacement* clumps: some collect five points while their neighbours get
+  none, and the glyphs turn to mush. The hit list is shuffled and walked.
+- **Shallow depth.** Perspective inflates near points, so a wide z-spread
+  blurs the shape on its own. It is ±4.5 units, not ±40.
+- **Smaller, dimmer points.** Additive blending saturates to white at
+  density. The section carries `data-size="0.5"`, halving point size through
+  a `uSizeScale` uniform so the mark reads as a shape, not a glow.
+- **Letter spacing.** Rendered as clouds rather than solids, B, C and F bleed
+  together without it.
+
+Scale is derived from the visible frustum and rebuilt on resize rather than
+hardcoded — about 34% of height in landscape, 78% of width in portrait where
+width binds instead. Zero-size containers are guarded: otherwise the aspect
+goes NaN and permanently poisons every position in the buffer.
 
 ## Performance
 
